@@ -1,4 +1,7 @@
 library(DBI)
+library(googlesheets4)
+
+source("country_detect.R")
 
 # See https://github.com/r-lib/keyring?tab=readme-ov-file#readme and
 # ?keyring::key_set for securely managing credentials
@@ -42,3 +45,33 @@ location <- dbGetQuery(con, "SELECT * FROM locations")
 
 # close database connection
 dbDisconnect(con)
+
+# read full registration data from Google Sheets
+registration <- read_sheet(ss = "https://docs.google.com/spreadsheets/d/11hw0nR7C5XoRVRw2sVwoG6xSz6BP2q5qM4t7zZyvGUA/edit?gid=2049186152#gid=2049186152")
+
+registration_colnames <- c("timestamp",
+                           "github_username",
+                           "orcid",
+                           "email",
+                           "programming_experience",
+                           "r_experience",
+                           "programming_task",
+                           "data_storage",
+                           "llm_usage",
+                           "organisation_type",
+                           "time_barrier",
+                           "supervisor_barrier",
+                           "internet_barrier",
+                           "electricity_barrier",
+                           "computer_barrier",
+                           "expectations",
+                           "participation_country",
+                           "wash_connection",
+                           "dataset_identification",
+                           "code_of_conduct",
+                           "data_privacy",
+                           "comments")
+
+registration <- registration |> 
+  set_names(registration_colnames) |> 
+  mutate(country = country_detect(location))
