@@ -1,3 +1,7 @@
+# this script loads all the data related to the first iteration of the course
+# Data science for open WASH data from a PostgreSQL database and Google Sheets.
+# Permissions are required for accessing both data sources.
+
 library(DBI)
 library(googlesheets4)
 

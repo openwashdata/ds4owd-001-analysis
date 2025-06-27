@@ -1,3 +1,10 @@
+# Helper function to detect country names from a free text column. It is based
+# on the function countries::country_name with some extra steps particular to
+# the nature of the data.
+# The input is `x` a (vector of the type) character and `to` which accepts
+# either `"name_en"` or `"ISO3"` as value. The function returns the name(s) or
+# ISO code(s) of the country.
+
 if(!require("countries")) install.packages("countries")
 
 country_detect <- function(x, to = "name_en"){
