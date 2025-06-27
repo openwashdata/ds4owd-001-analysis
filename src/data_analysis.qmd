@@ -1,0 +1,94 @@
+---
+title: "ds4owd-001: Course Data Analysis"
+format: html
+editor: visual
+---
+
+```{r}
+#| label: load-packages
+#| echo: false
+library(tidyverse)
+```
+
+```{r}
+#| label: load-data
+#| echo: false
+source("data_collection.R")
+```
+
+The first iteration of our free Data Science for Open WASH Data took place during October 2023 and February 2024.
+
+Initially, `r nrow(registration)` signed up for the course. Our aim is to empower WASH professionals to engage with tools and workflows for open data and code and we were very pleased to have reached so many people from around the world!
+
+```{r}
+#| label: plot-countries
+#| echo: false
+
+registration_country <- registration |> 
+  group_by(country_ISO3) |> 
+  summarise(n_resgitered = n()) |> 
+  ungroup() |> 
+  right_join(world, join_by(country_ISO3 == ISO3))
+
+plain <- theme(
+  axis.text = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank(),
+  panel.background = element_rect(fill = "white"),
+  plot.title = element_text(hjust = 0.5)
+)
+
+registration_plot <- ggplot(data = registration_country, 
+                            mapping = aes(x = long, y = lat, group = group)) + 
+  coord_fixed(1.3) +
+  geom_polygon(aes(fill = n_resgitered)) +
+  scale_fill_distiller(palette ="Purples", direction = -1) + # or direction=1
+  ggtitle("Number of registrations for dw4owd-001") +
+  labs(fill = "") +
+  plain
+
+registration_plot
+```
+
+```{r}
+#| label: load-data
+#| echo: false
+#| eval: false
+participants <- course_participation |> 
+  filter(guest == "Yes") |>
+  mutate(name = if_else(is.na(name), user_email, name)) |> 
+  group_by(name) |> 
+  arrange(user_email) |> 
+  summarise(modules_taken = n(),
+            email = first(user_email)) |> 
+  ungroup() |> 
+  filter(modules_taken >= 4,
+         # !is.na(email)
+         ) 
+
+participants_data <- registration |> 
+  set_names(registration_colnames) |> 
+  select(-timestamp, 
+         -orcid,,s
+         -expectations,
+         -code_of_conduct,
+         -data_privacy) 
+  
+positcloud_time <- positcloud_usage |> 
+  mutate(date = as_date(from)) |> 
+  group_by(date) |> 
+  summarise(total_time = sum(compute))
+
+p <- ggplot(positcloud_time, aes(x = date, y = total_time)) +
+  geom_line() + 
+  xlab("")
+p
+
+test_df <- positcloud_usage |> 
+  group_by(user_id) |>
+  summarise(total = sum(compute)) |> 
+  filter(total > 1) 
+```
