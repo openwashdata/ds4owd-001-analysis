@@ -5,7 +5,7 @@
 library(DBI)
 library(googlesheets4)
 
-source("src/country_detect.R")
+source("country_detect.R")
 
 # See https://github.com/r-lib/keyring?tab=readme-ov-file#readme and
 # ?keyring::key_set for securely managing credentials
@@ -78,4 +78,5 @@ registration_colnames <- c("timestamp",
 
 registration <- registration |> 
   set_names(registration_colnames) |> 
-  mutate(country = country_detect(participation_country))
+  mutate(country = country_detect(participation_country),
+         country_ISO3 = country_detect(participation_country, to = "ISO3"))
