@@ -78,4 +78,4 @@ registration_colnames <- c("timestamp",
 
 registration <- registration |> 
   set_names(registration_colnames) |> 
-  mutate(country = country_detect(location))
+  mutate(country = country_detect(participation_country))
