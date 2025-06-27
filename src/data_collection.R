@@ -5,7 +5,7 @@
 library(DBI)
 library(googlesheets4)
 
-source("country_detect.R")
+source("src/country_detect.R")
 
 # See https://github.com/r-lib/keyring?tab=readme-ov-file#readme and
 # ?keyring::key_set for securely managing credentials
