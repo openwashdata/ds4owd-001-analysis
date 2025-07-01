@@ -7,18 +7,20 @@ editor: visual
 ```{r}
 #| label: load-packages
 #| echo: false
+#| include: false
 library(tidyverse)
 ```
 
 ```{r}
 #| label: load-data
 #| echo: false
+#| include: false
 source("data_collection.R")
 ```
 
-The first iteration of our free Data Science for Open WASH Data took place during October 2023 and February 2024.
+The first iteration of our free Data Science for Open WASH Data course took place during October 2023 and February 2024. Here are some interesting insights about this experience, because we love data.
 
-Initially, `r nrow(registration)` signed up for the course. Our aim is to empower WASH professionals to engage with tools and workflows for open data and code and we were very pleased to have reached so many people from around the world!
+Initially, `r nrow(registration)` people signed up for the course and since our aim is to empower WASH professionals to engage with tools and workflows for open data and open code, we were very pleased to have reached so many people from around the world!
 
 ```{r}
 #| label: plot-countries
@@ -28,7 +30,8 @@ registration_country <- registration |>
   group_by(country_ISO3) |> 
   summarise(n_resgitered = n()) |> 
   ungroup() |> 
-  right_join(world, join_by(country_ISO3 == ISO3))
+  right_join(world, join_by(country_ISO3 == ISO3)) |> 
+  filter(region != "Antarctica")
 
 plain <- theme(
   axis.text = element_blank(),
@@ -38,23 +41,34 @@ plain <- theme(
   panel.grid = element_blank(),
   axis.title = element_blank(),
   panel.background = element_rect(fill = "white"),
-  plot.title = element_text(hjust = 0.5)
+  plot.title = element_text(hjust = 0.5, 
+                            size = 14, 
+                            face = "bold")
 )
 
 registration_plot <- ggplot(data = registration_country, 
                             mapping = aes(x = long, y = lat, group = group)) + 
-  coord_fixed(1.3) +
+  coord_fixed(1.25) +
   geom_polygon(aes(fill = n_resgitered)) +
-  scale_fill_distiller(palette ="Purples", direction = -1) + # or direction=1
-  ggtitle("Number of registrations for dw4owd-001") +
+  scale_fill_gradient(low = "#ab84a8", 
+                      high = "#5b195b", 
+                      na.value = "grey80") +
   labs(fill = "") +
   plain
 
 registration_plot
 ```
 
+What was the motivation that drove WASH professionals to register for a 10-week synchronous course on top of their other responsibilities? Well, let's find out.
+
 ```{r}
-#| label: load-data
+#| label: plot-registration
+#| echo: false
+
+```
+
+```{r}
+#| label: extra
 #| echo: false
 #| eval: false
 participants <- course_participation |> 
