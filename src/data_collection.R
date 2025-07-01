@@ -79,4 +79,8 @@ registration_colnames <- c("timestamp",
 registration <- registration |> 
   set_names(registration_colnames) |> 
   mutate(country = country_detect(participation_country),
-         country_ISO3 = country_detect(participation_country, to = "ISO3"))
+         country_ISO3 = country_detect(participation_country, to = "ISO3"),
+         organisation_type = if_else(str_detect(string = organisation_type, 
+                                                pattern = "NGO"),
+                                     "NGO",
+                                     organisation_type))
