@@ -25,6 +25,8 @@ Initially, `r nrow(registration)` people signed up for the course and since our 
 ```{r}
 #| label: plot-countries
 #| echo: false
+#| fig.width: 8
+#| fig.height: 4
 
 registration_country <- registration |> 
   group_by(country_ISO3) |> 
@@ -41,31 +43,81 @@ plain <- theme(
   panel.grid = element_blank(),
   axis.title = element_blank(),
   panel.background = element_rect(fill = "white"),
+  plot.margin =  margin(t = 0, r = 0, b = 0, l = 0, 
+                        unit = "pt"),
+  plot.title.position = "plot",
   plot.title = element_text(hjust = 0.5, 
                             size = 14, 
                             face = "bold")
 )
 
-registration_plot <- ggplot(data = registration_country, 
-                            mapping = aes(x = long, y = lat, group = group)) + 
-  coord_fixed(1.25) +
+countries_plot <- ggplot(data = registration_country, 
+                         mapping = aes(x = long, 
+                                       y = lat, 
+                                       group = group)) + 
+  coord_sf() +
   geom_polygon(aes(fill = n_resgitered)) +
   scale_fill_gradient(low = "#ab84a8", 
                       high = "#5b195b", 
                       na.value = "grey80") +
-  labs(fill = "") +
+  labs(title = "Number of registrations for ds4owd-001", 
+       fill = "") +
   plain
 
-registration_plot
+countries_plot
 ```
 
-What was the motivation that drove WASH professionals to register for a 10-week synchronous course on top of their other responsibilities? Well, let's find out.
+What is thebackground and motivation that drove WASH professionals to register for a 10-week synchronous course on top of their other responsibilities? Well, let's find out.
 
 ```{r}
-#| label: plot-registration
+#| label: plot-organisation
 #| echo: false
 
+owd_palette <- c("#5b195b", "#9b2c60", "#ce525b",
+                 "#f08453", "#ffbd54", "#f9f871")
+
+org_plot <- ggplot(registration, 
+                   aes(y = fct_infreq(organisation_type), 
+                       fill = as_factor(organisation_type))) +
+  geom_bar() +
+  scale_fill_manual(values = owd_palette, guide = "none") +
+  labs(title = "Organization type registered professionals work for", 
+       x = "", 
+       y = "") + 
+  theme_minimal() +
+  theme(plot.title.position = "plot",
+        plot.title = element_text(hjust = 0.5,
+                            size = 14, 
+                            face = "bold"))
+
+org_plot
 ```
+
+```{r}
+#| label: plot-data-storage
+#| echo: false
+
+owd_palette <- c("#5b195b", "#9b2c60", "#ce525b",
+                 "#f08453", "#ffbd54", "#f9f871")
+
+storage_plot <- ggplot(registration, 
+                       aes(y = fct_infreq(data_storage), 
+                           fill = as_factor(data_storage))) +
+  geom_bar() +
+  scale_fill_manual(values = owd_palette, guide = "none") +
+  labs(title = "Method for data storage", 
+       x = "", 
+       y = "") + 
+  theme_minimal() +
+  theme(plot.title.position = "plot",
+        plot.title = element_text(hjust = 0.5,
+                            size = 14, 
+                            face = "bold"))
+
+storage_plot
+```
+
+
 
 ```{r}
 #| label: extra
