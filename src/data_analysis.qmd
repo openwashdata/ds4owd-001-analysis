@@ -194,15 +194,15 @@ participants <- course_participation |>
 #| echo: false
 #| include: false
 
-post_ratings <- post_survey |> 
+post_ratings_long <- post_survey |> 
   transmute(r_competency = as_factor(rating_self_r_comp),
             git_competency = as_factor(rating_self_vc_comp),
-            confidence = as_factor(conf_skill_app))
-
-summary_post <- post_ratings |> 
+            confidence = as_factor(conf_skill_app)) |> 
   pivot_longer(cols = everything(),
                names_to = "Question", 
-               values_to = "Answer") |> 
+               values_to = "Answer")
+
+summary_post <- post_ratings_long |> 
   mutate(Answer = if_else(Answer %in% c("1", "2"), "no", "yes")) |> 
   group_by(Question, Answer) |> 
   summarise(n = n()) |> 
@@ -210,16 +210,73 @@ summary_post <- post_ratings |>
   filter(Answer == "yes")
 ```
 
-Although not everyone that signed up was able to take the course, in the first iteration we had `r nrow(participants)` participants complete at least half of the modules and we are specially proud of those who fulfilled the course up to the capstone project. You can get an [overview of the capstone projects](https://openwashdata.org/pages/academy/graduates/) completed by the graduates of our course. Moreover, some of them went as far as to publish their own data packages using the workflow provided by [`washr`](https://global-health-engineering.github.io/ghedatapublishing/). This is particularly invaluable as we strongly believe in the importance of the [FAIR principles for scientific data](https://www.go-fair.org/fair-principles/) and the recognition of research work that is not a scientific paper.
-
-Finally, our greatest satisfaction is providing WASH professionals a skill set that they feel confident using beyond the course: `r (summary_post |> filter(Question == "r_competency") |> select(n) |> as_vector()) * 100 / nrow(post_survey)`\% of the participants that completed the final survey rated themselves as competent users of R after completing the course, `r (summary_post |> filter(Question == "git_competency") |> select(n) |> as_vector()) * 100 / nrow(post_survey)`\% of them manifested to feel competent using Git and GitHub, and `r (summary_post |> filter(Question == "confidence") |> select(n) |> as_vector()) * 100 / nrow(post_survey)`\% felt confident applying the skills learned in the course to real-world data science projets.
-
-
 ```{r}
 #| label: plot-post
 #| echo: false
+#| fig-height: 5
+#| fig-width: 8
+
+legend_values = c("r_competency" = owd_palette[1], 
+                  "git_competency" = owd_palette[2], 
+                  "confidence" = owd_palette[3])
+
+legend_labels <- c("\nR competency\n", 
+                     "Git/GitHub\ncompetency\n", 
+                     "Confidence\napplying skills\n")
+
+p <- ggplot(post_ratings_long, 
+            aes(x = Answer, fill = Question)) +
+  geom_bar(aes(y = after_stat(count)  / sum(after_stat(count))),
+           position = "dodge") +
+   scale_fill_manual(name = "", 
+                     values = legend_values,
+                     labels = legend_labels) +
+  scale_y_continuous(labels = scales::label_percent()) +
+  labs(title = "Self-assessment after completing the course", 
+       x = "Rating", 
+       y = "") +
+  theme_minimal() +
+  theme(plot.title.position = "plot",
+        plot.title = element_text(hjust = 0.5,
+                            size = 14, 
+                            face = "bold"),
+        axis.title.x = element_text(vjust = -5),
+        plot.margin = margin(10, 10, 30, 50, unit = "pt")) +
+  annotate("text", 
+           x = 0, 
+           y = -0.03, 
+           label = "Not confident or\ncompetent at all", 
+           hjust = 0.5, 
+           size = 3.5) +
+  annotate("text", 
+           x = 5, 
+           y = -0.03, 
+           label = "Very confident\nor competent", 
+           hjust = 0.5, 
+           size = 3.5) +
+  annotate("segment", x=1, y=-0.03, xend=4, yend=-0.03,
+         arrow = arrow(ends = "both",
+                       angle = 25,
+                       length = unit(12, "pt"))) +
+  coord_cartesian(ylim = c(0, 0.2),
+                  xlim = c(1, 4),
+                  clip = "off")
+  
+# Display the plot
+print(p)
+```
+
+
+Although not everyone that signed up was able to take the course, we had `r nrow(participants)` participants complete at least half of the modules and we are specially proud of those who fulfilled the course up to the capstone project. You can get an [overview of the capstone projects](https://openwashdata.org/pages/academy/graduates/) completed by the graduates of our course. Moreover, some of them went as far as to publish their own data packages using the workflow provided by [`washr`](https://global-health-engineering.github.io/ghedatapublishing/). This is particularly invaluable as we strongly believe in the importance of the [FAIR principles for scientific data](https://www.go-fair.org/fair-principles/) and the recognition of research work that is not a scientific paper.
+
+Our greatest satisfaction is providing WASH professionals a skill set that they feel confident using beyond the course: `r (summary_post |> filter(Question == "r_competency") |> select(n) |> as_vector()) * 100 / nrow(post_survey)`\% of the participants that completed the final survey rated themselves as competent users of R after completing the course, `r (summary_post |> filter(Question == "git_competency") |> select(n) |> as_vector()) * 100 / nrow(post_survey)`\% of them manifested to feel competent using Git and GitHub, and `r (summary_post |> filter(Question == "confidence") |> select(n) |> as_vector()) * 100 / nrow(post_survey)`\% felt confident applying the skills learned in the course to real-world data science projects.
+
+
+```{r}
+#| echo: false
 #| fig-height: 6
 #| fig-width: 8
+#| eval: false
 
 r_skills_plot <- ggplot(post_ratings,
                         aes(y = r_competency,
@@ -253,7 +310,6 @@ confidence_plot <- ggplot(post_ratings,
 
 grid.arrange(r_skills_plot, confidence_plot, nrow = 2)
 ```
-
 
 ```{r}
 #| label: extra
