@@ -1,0 +1,323 @@
+---
+title: "What We Learned from Our First Data Science for Open WASH Data Course"
+subtitle: "The numbers tell a story of dedication, growth, and the desire for data skills in the WASH community"
+format: html
+editor: visual
+---
+
+```{r}
+#| label: load-packages
+#| echo: false
+#| include: false
+library(tidyverse)
+library(gridExtra)
+```
+
+```{r}
+#| label: load-data
+#| echo: false
+#| include: false
+source("data_collection.R")
+```
+
+```{r}
+#| label: set-up
+#| echo: false
+#| include: false
+
+low_purple <- "#ab84a8"
+high_purple <- "#5b195b"
+map_grey <- "grey80"
+
+owd_palette <- c("#5b195b", "#9b2c60", "#ce525b",
+                 "#f08453", "#ffbd54", "#f9f871")
+```
+
+## A Global Response to a Critical Need
+
+When we launched the first [**Data Science for Open WASH Data (ds4owd)**](https://ds4owd-001.github.io/website/) course in October 2023, **`r nrow(registration)`** from around the world signed up—validating our belief that the WASH community is eager to learn data science skills.
+
+```{r}
+#| label: registration-data
+#| echo: false
+#| fig.width: 8
+#| fig.height: 4
+
+registration_country <- registration |> 
+  group_by(country_ISO3) |> 
+  summarise(n_resgitered = n()) |> 
+  ungroup() |> 
+  right_join(world, join_by(country_ISO3 == ISO3)) |> 
+  filter(region != "Antarctica")
+
+storage_df <- registration |> 
+    mutate(storage_type =
+           case_when(
+             str_detect(data_storage, "Google")   ~ "Spreadsheets",
+             str_detect(data_storage, "database") ~ "Databases",
+             str_detect(data_storage, "CSV")      ~ "Machine readable files",
+             str_detect(data_storage, "paper")    ~ "Physically",
+             str_detect(data_storage, "know")     ~ "Unknown",
+             TRUE                                 ~ "Other"
+           )
+         ) |> 
+  group_by(storage_type) |> 
+  summarise(n = n()) |> 
+  ungroup()
+```
+
+```{r}
+#| label: plot-countries
+#| echo: false
+#| fig.width: 8
+#| fig.height: 4
+
+plain <- theme(
+  axis.text = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank(),
+  panel.background = element_rect(fill = "white"),
+  plot.margin =  margin(t = 0, r = 0, b = 0, l = 0, 
+                        unit = "pt"),
+  plot.title.position = "plot",
+  plot.title = element_text(hjust = 0.5, 
+                            size = 14, 
+                            face = "bold")
+)
+
+countries_plot <- ggplot(data = registration_country, 
+                         mapping = aes(x = long, 
+                                       y = lat, 
+                                       group = group)) + 
+  coord_sf() +
+  geom_polygon(aes(fill = n_resgitered)) +
+  scale_fill_gradient(low = low_purple, 
+                      high = low_purple, 
+                      na.value = map_grey) +
+  labs(title = "Number of registrations for ds4owd-001", 
+       fill = "") +
+  plain
+
+countries_plot
+```
+
+The diverse backgrounds of those who registered told a compelling story about the universal need for better data practices across the WASH sector that can facilitate collaborations.
+
+```{r}
+#| label: plot-organisation
+#| echo: false
+#| fig-height: 3
+#| fig-width: 8
+
+org_plot <- ggplot(registration, 
+                   aes(y = fct_infreq(organisation_type), 
+                       fill = as_factor(organisation_type))) +
+  geom_bar() +
+  scale_fill_manual(values = owd_palette, guide = "none") +
+  labs(title = "Organization type registered professionals work for", 
+       x = "", 
+       y = "") + 
+  theme_minimal() +
+  theme(plot.title.position = "plot",
+        plot.title = element_text(hjust = 0.5,
+                            size = 14, 
+                            face = "bold"))
+
+org_plot
+```
+
+## The Data Reality Check
+
+Our pre-course survey revealed exactly what we suspected: WASH professionals are generating valuable data but struggling with sharing and management. Most participants were storing data in inadequate formats without standardized workflows for collaboration or sharing.
+
+```{r}
+#| label: plot-storage
+#| echo: false
+#| fig-height: 3
+#| fig-width: 8
+
+storage_plot <- ggplot(storage_df, 
+                       aes(x = n,
+                           y = fct_infreq(storage_type, w = n), 
+                           fill = as_factor(storage_type))) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = owd_palette, guide = "none") +
+  labs(title = "Current method for data storage", 
+       x = "", 
+       y = "") + 
+  theme_minimal() +
+  theme(plot.title.position = "plot",
+        plot.title = element_text(hjust = 0.5,
+                            size = 14, 
+                            face = "bold"))
+
+storage_plot
+```
+
+Even more telling was the programming experience landscape. While participants brought diverse professional expertise, many were starting their coding journey from scratch.
+
+```{r}
+#| label: programming-experience-data
+#| echo: false
+
+exp_levels <- c("I have none.",
+                "I have written a few lines now and again.",
+                "I have written programs for my own use that are a couple of pages long.",
+                "I have written and maintained larger pieces of software.")
+
+exp_labels <- c("None",
+                "Few lines now and again",
+                "Programs for own use",
+                "Developed and maintained\npieces of software")
+
+registration <- registration |> 
+  mutate(programming_experience = fct_relevel(programming_experience))
+```
+
+```{r}
+#| label: plot-programming-experience
+#| echo: false
+#| fig-height: 3
+#| fig-width: 8
+
+prog_plot <- ggplot(registration, 
+                    aes(y = programming_experience, 
+                        fill = programming_experience)) +
+  geom_bar() +
+  scale_fill_manual(values = owd_palette, guide = "none") +
+  scale_y_discrete(labels = exp_labels) +
+  labs(title = "Experience in programming", 
+       x = "", 
+       y = "") + 
+  theme_minimal() +
+  theme(plot.title.position = "plot",
+        plot.title = element_text(hjust = 0.5,
+                            size = 14, 
+                            face = "bold"))
+
+prog_plot
+```
+
+## From Learning to Application
+
+```{r}
+#| label: participants-data
+#| echo: false
+
+participants <- course_participation |> 
+  filter(guest == "Yes") |>
+  mutate(name = if_else(is.na(name), user_email, name)) |> 
+  group_by(name) |> 
+  arrange(user_email) |> 
+  summarise(modules_taken = n(),
+            email = first(user_email)) |> 
+  ungroup() |> 
+  filter(modules_taken >= 4,
+         # !is.na(email)
+         ) 
+```
+
+Of the `r nrow(registration)` initial registrants, **`r nrow(participants)` participants completed at least half of the modules**—a testament to both the course's rigor and participants' commitment. But completion rates only tell part of the story.
+
+```{r}
+#| label: post-data
+#| echo: false
+#| include: false
+
+post_ratings_long <- post_survey |> 
+  transmute(r_competency = as_factor(rating_self_r_comp),
+            git_competency = as_factor(rating_self_vc_comp),
+            confidence = as_factor(conf_skill_app)) |> 
+  pivot_longer(cols = everything(),
+               names_to = "Question", 
+               values_to = "Answer")
+
+summary_post <- post_ratings_long |> 
+  mutate(Answer = if_else(Answer %in% c("1", "2"), "no", "yes")) |> 
+  group_by(Question, Answer) |> 
+  summarise(n = n()) |> 
+  ungroup() |> 
+  filter(Answer == "yes")
+```
+
+The real success lies in the transformation we measured through our post-course assessments. Participants didn't just learn tools—they gained confidence in applying them to real-world challenges: 
+
+- **`r (summary_post |> filter(Question == "r_competency") |> select(n) |> as_vector()) * 100 / nrow(post_survey)`\%** rated themselves as competent R users
+- **`r (summary_post |> filter(Question == "git_competency") |> select(n) |> as_vector()) * 100 / nrow(post_survey)`\%** felt competent using Git and GitHub for version control
+- **`r (summary_post |> filter(Question == "confidence") |> select(n) |> as_vector()) * 100 / nrow(post_survey)`\%** expressed confidence applying course skills to real-world projects
+
+```{r}
+#| label: plot-post
+#| echo: false
+#| fig-height: 5
+#| fig-width: 8
+
+legend_values = c("r_competency" = owd_palette[1], 
+                  "git_competency" = owd_palette[2], 
+                  "confidence" = owd_palette[3])
+
+legend_labels <- c("\nR competency\n", 
+                     "Git/GitHub\ncompetency\n", 
+                     "Confidence\napplying skills\n")
+
+p <- ggplot(post_ratings_long, 
+            aes(x = Answer, fill = Question)) +
+  geom_bar(aes(y = after_stat(count)  / sum(after_stat(count))),
+           position = "dodge") +
+   scale_fill_manual(name = "", 
+                     values = legend_values,
+                     labels = legend_labels) +
+  scale_y_continuous(labels = scales::label_percent()) +
+  labs(title = "Self-assessment after completing the course", 
+       x = "Rating", 
+       y = "") +
+  theme_minimal() +
+  theme(plot.title.position = "plot",
+        plot.title = element_text(hjust = 0.5,
+                            size = 14, 
+                            face = "bold"),
+        axis.title.x = element_text(vjust = -5),
+        plot.margin = margin(10, 10, 30, 50, unit = "pt")) +
+  annotate("text", 
+           x = 0, 
+           y = -0.03, 
+           label = "Not confident or\ncompetent at all", 
+           hjust = 0.5, 
+           size = 3.5) +
+  annotate("text", 
+           x = 5, 
+           y = -0.03, 
+           label = "Very confident\nor competent", 
+           hjust = 0.5, 
+           size = 3.5) +
+  annotate("segment", x=1, y=-0.03, xend=4, yend=-0.03,
+         arrow = arrow(ends = "both",
+                       angle = 25,
+                       length = unit(12, "pt"))) +
+  coord_cartesian(ylim = c(0, 0.2),
+                  xlim = c(1, 4),
+                  clip = "off")
+  
+print(p)
+```
+
+The most exciting outcome? Many graduates began publishing their own data packages using the workflow provided by our package [`washr`](https://global-health-engineering.github.io/ghedatapublishing/), embracing [FAIR](https://www.go-fair.org/fair-principles/) principles and contributing to the growing ecosystem of open WASH data.
+
+## The Impact Beyond Numbers
+
+Our [capstone projects](https://openwashdata.org/pages/academy/graduates/) became showcases of practical application of the learning of the course. These weren't just assignments; they are valuable data contibutions to the WASH community.
+
+One participant noted: *" (What I liked about the course was) the fact that it introduced me to a field (Data Science) that I just used to hear about, little did I know it was valuable in my career path..."*
+
+## What's Next: ds4owd-002
+
+The success of our first iteration has energized us for round two. **ds4owd-002 will run from September to December 2024**, building on lessons learned while maintaining the core elements that made the first course successful.
+
+Whether you're managing water quality data in spreadsheets or leading multi-country WASH programs, this course offers a pathway to becoming a more effective, data-savvy professional.
+
+The people who signed up for our first course weren't just registering for learning—they were joining a movement toward more open, collaborative WASH practice. When we share data effectively, we accelerate progress toward universal access to water and sanitation.
+
+Ready to transform your data practices? Visit our [course page](https://ds4owd-002.github.io/website/) to learn more about ds4owd-002 and join our growing community of data-driven WASH professionals.
