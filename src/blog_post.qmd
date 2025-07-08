@@ -205,7 +205,7 @@ lot_exp <- ((registration |>
   round()
 ```
 
-Even more telling was the programming experience landscape. While participants brought diverse professional expertise, many (around `r no_exp`%) were starting their coding journey from scratch. However, we also found that `r lot_exp`%
+Even more telling was the programming experience landscape. While participants brought diverse professional expertise, many (around `r no_exp`%) were starting their coding journey from scratch. 
 
 ```{r}
 #| label: plot-programming-experience
