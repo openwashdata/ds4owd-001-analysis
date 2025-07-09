@@ -1,26 +1,19 @@
----
-title: "What We Learned from Our First Data Science for Open WASH Data Course"
-subtitle: "The numbers tell a story of dedication, growth, and the desire for data skills in the WASH community"
-format: html
-editor: visual
----
-
-```{r}
+## --------------------------------------------------------------------------------
 #| label: load-packages
 #| echo: false
 #| include: false
 library(tidyverse)
 library(gridExtra)
-```
 
-```{r}
+
+## --------------------------------------------------------------------------------
 #| label: load-data
 #| echo: false
 #| include: false
 source("data_collection.R")
-```
 
-```{r}
+
+## --------------------------------------------------------------------------------
 #| label: set-up
 #| echo: false
 #| include: false
@@ -31,13 +24,11 @@ map_grey <- "grey80"
 
 owd_palette <- c("#5b195b", "#9b2c60", "#ce525b",
                  "#f08453", "#ffbd54", "#f9f871")
-```
 
-## A Global Response to a Critical Need 🌍 
 
-When we launched the first [**Data Science for Open WASH Data (ds4owd)**](https://ds4owd-001.github.io/website/) course in October 2023, **`r nrow(registration)` WASH professionals** from **`r registration$country_ISO3 |> na.omit() |> unique() |> length()` countries** around the world signed up—validating our belief that the WASH community is eager to acquire data science skills.
-
-```{r}
+nrow(registration)
+registration$country_ISO3 |> na.omit() |> unique() |> length()
+## --------------------------------------------------------------------------------
 #| label: registration-data
 #| echo: false
 #| fig.width: 8
@@ -64,9 +55,9 @@ storage_df <- registration |>
   group_by(storage_type) |> 
   summarise(n = n()) |> 
   ungroup()
-```
 
-```{r}
+
+## --------------------------------------------------------------------------------
 #| label: plot-countries
 #| echo: false
 #| fig.width: 8
@@ -102,11 +93,9 @@ countries_plot <- ggplot(data = registration_country,
   plain
 
 countries_plot
-```
 
-The diverse backgrounds of those who registered told a compelling story about the universal need for better data practices within the WASH sector that can facilitate collaborations between organizations and across countries.
 
-```{r}
+## --------------------------------------------------------------------------------
 #| label: plot-organisation
 #| echo: false
 #| fig-height: 3
@@ -135,15 +124,9 @@ org_plot <- ggplot(registration,
                             face = "bold"))
 
 org_plot
-```
 
-## The Data Reality Check 📋
 
-Our pre-course survey revealed exactly what we suspected: WASH professionals are generating valuable data but struggling with sharing and management. Most of the potential participants were storing data in sub-optimal formats for machine-readability[^1] without standardized workflows for collaboration or sharing.
-
-[^1]: Machine-readable data is data structured and formatted in a way that computer programs can automatically process, interpret, and analyze without human intervention, such as CSV, JSON, XML, etc.
-
-```{r}
+## --------------------------------------------------------------------------------
 #| label: plot-storage
 #| echo: false
 #| fig-height: 3
@@ -172,9 +155,9 @@ storage_plot <- ggplot(storage_df,
                             face = "bold"))
 
 storage_plot
-```
 
-```{r}
+
+## --------------------------------------------------------------------------------
 #| label: programming-experience-data
 #| echo: false
 
@@ -203,11 +186,11 @@ more_exp <- ((registration |>
   filter(programming_experience == exp_levels[3]) |> 
   nrow()) / nrow(registration) * 100) |> 
   round()
-```
 
-Even more telling was the programming experience landscape. While participants brought diverse professional expertise, many (around `r no_exp`%) were starting their coding journey from scratch. At the same time, we also discovered `r more_exp`% had already written programs for their own use that were a couple of pages long.
 
-```{r}
+no_exp
+more_exp
+## --------------------------------------------------------------------------------
 #| label: plot-programming-experience
 #| echo: false
 #| fig-height: 6
@@ -261,11 +244,9 @@ r_plot <- ggplot(registration,
 
 
 grid.arrange(prog_plot, r_plot, nrow = 2)
-```
 
-## From Learning to Application 🎯
 
-```{r}
+## --------------------------------------------------------------------------------
 #| label: participants-data
 #| echo: false
 
@@ -280,11 +261,11 @@ participants <- course_participation |>
   filter(modules_taken >= 4,
          # !is.na(email)
          ) 
-```
 
-Of the `r nrow(registration)` initial registrants, **`r nrow(participants)` participants completed at least half of the modules**—a testament to both the course's rigor and participants' commitment. But completion rates only tell part of the story.
 
-```{r}
+nrow(registration)
+nrow(participants)
+## --------------------------------------------------------------------------------
 #| label: post-data
 #| echo: false
 #| include: false
@@ -307,15 +288,12 @@ summary_post <- percentage_post |>
   summarise(Total = (sum(Percentage) * 100)) |> 
   ungroup() |> 
   filter(Answer == "yes")
-```
 
-The real success lies in the transformation we measured through our post-course assessments. Participants didn't just learn tools—they gained confidence in applying them to real-world challenges: 
 
-- **`r summary_post |> filter(Question == "r_competency") |> select(Total) |> as_vector()`%** rated themselves as competent R users 📊
-- **`r summary_post |> filter(Question == "git_competency") |> select(Total) |> as_vector()`%** felt competent using Git and GitHub for version control 🔧
-- **`r summary_post |> filter(Question == "confidence") |> select(Total) |> as_vector()`%** expressed confidence applying course skills to real-world projects 💪
-
-```{r}
+summary_post |> filter(Question == "r_competency") |> select(Total) |> as_vector()
+summary_post |> filter(Question == "git_competency") |> select(Total) |> as_vector()
+summary_post |> filter(Question == "confidence") |> select(Total) |> as_vector()
+## --------------------------------------------------------------------------------
 #| label: plot-post
 #| echo: false
 #| fig-height: 5
@@ -374,22 +352,4 @@ post_plot <- ggplot(percentage_post,
                   clip = "off")
   
 post_plot
-```
 
-The most exciting outcome? We collaborated with graduates on taking the next step to publish their own data packages using the workflow provided by our CRAN package 📦 [`washr`](https://global-health-engineering.github.io/ghedatapublishing/), embracing [FAIR](https://www.go-fair.org/fair-principles/) principles and contributing to the growing ecosystem of open WASH data—something we will emphasize more during our next iteration.
-
-## The Impact Beyond Numbers 🌟
-
-Our [capstone projects](https://openwashdata.org/pages/academy/graduates/) became showcases of practical application of the learning of the course. These weren't just assignments; they are valuable data contributions to the WASH community.
-
-One participant noted: *" (What I liked about the course was) the fact that it introduced me to a field (Data Science) that I just used to hear about, little did I know it was valuable in my career path..."*
-
-## What's Next: ds4owd-002 🚀
-
-The success of our first iteration has energized us for round two. **ds4owd-002 will run from September to December 2024**, building on lessons learned while maintaining the core elements that made the first course successful.
-
-Whether you're managing water quality data in spreadsheets or leading multi-country WASH programs, this course offers a pathway to becoming a more effective, data-savvy professional.
-
-The people who signed up for our first course weren't just registering for learning—they were joining a movement toward more open, collaborative WASH practice. When we share data effectively, we accelerate progress toward universal access to water and sanitation.
-
-**Ready to transform your data practices?** Visit our [course page](https://ds4owd-002.github.io/website/) to learn more and sign-up for ds4owd-002 and [join](https://openwashdata.org/pages/get-started/) our growing community of data-driven WASH professionals.
