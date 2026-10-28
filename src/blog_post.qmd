@@ -376,7 +376,7 @@ post_plot <- ggplot(percentage_post,
 post_plot
 ```
 
-The most exciting outcome? We collaborated with graduates on taking the next step to publish their own data packages using the workflow provided by our CRAN package 📦 [`washr`](https://global-health-engineering.github.io/ghedatapublishing/), embracing [FAIR](https://www.go-fair.org/fair-principles/) principles and contributing to the growing ecosystem of open WASH data—something we will emphasize more during our next iteration.
+The most exciting outcome? We collaborated with graduates on taking the next step to publish their own data packages using the workflow provided by our CRAN package 📦 [`washr`](https://openwashdata.github.io/fair-publishing/), embracing [FAIR](https://www.go-fair.org/fair-principles/) principles and contributing to the growing ecosystem of open WASH data—something we will emphasize more during our next iteration.
 
 ## The Impact Beyond Numbers 🌟
 
